@@ -61,7 +61,7 @@
   'targets': [
     {
       'target_name': 'node',
-      'type': 'executable',
+      'type': '<(output_type)',
 
       'dependencies': [
         'node_js2c#host',

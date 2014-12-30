@@ -287,6 +287,12 @@ parser.add_option("--tag",
     dest="tag",
     help="Custom build tag")
 
+parser.add_option("--output-type",
+    action="store",
+    dest="output_type",
+    help="""Type of output binary to build. Valid values are:
+        executable, static_library, shared_library (default: 'executable')""")
+
 (options, args) = parser.parse_args()
 
 
@@ -475,6 +481,7 @@ def configure_node(o):
   o['variables']['node_unsafe_optimizations'] = (
     1 if options.unsafe_optimizations else 0)
   o['default_configuration'] = 'Debug' if options.debug else 'Release'
+  o['variables']['output_type'] = options.output_type or 'executable'
 
   host_arch = host_arch_win() if os.name == 'nt' else host_arch_cc()
   target_arch = options.dest_cpu or host_arch
