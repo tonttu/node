@@ -1,0 +1,17 @@
+Source: multitouch-nodejs-1
+Section: devel
+Priority: extra
+Maintainer: Riku Palomäki <riku@multitouch.fi>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, subversion
+Standards-Version: 3.9.2
+
+Package: multitouch-nodejs-1
+Section: devel
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Node.js event-based server-side javascript engine
+
+Package: multitouch-libv8-1
+Section: devel
+Architecture: all
+Description: v8 JavaScript engine

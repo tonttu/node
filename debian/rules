@@ -1,0 +1,59 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+clean:
+	dh_clean
+	$(MAKE) clean
+	$(MAKE) -C deps/v8 clean || true
+
+deps/v8/build/gyp:
+	$(MAKE) -C deps/v8 dependencies
+
+build: deps/v8/build/gyp
+	$(MAKE) -C deps/v8 library=shared console=readline werror=no native CXXFLAGS=-O2 CFLAGS=-O2 V=1
+	./configure --shared-v8 --shared-v8-includes $(PWD)/deps/v8/include --shared-v8-libpath $(PWD)/deps/v8/out/native/lib.target --shared-zlib --dest-cpu=x64 --output-type=shared_library --prefix /opt/multitouch-nodejs-1
+	$(MAKE) all
+
+binary:
+	dh_installdirs
+	dh_install
+	dh_installchangelogs
+	mkdir -p debian/multitouch-libv8-1/opt/multitouch-nodejs-1/lib debian/multitouch-libv8-1/opt/multitouch-nodejs-1/bin debian/multitouch-nodejs-1/opt/multitouch-nodejs-1/lib
+	cp deps/v8/out/native/lib.target/lib*.so debian/multitouch-libv8-1/opt/multitouch-nodejs-1/lib/
+	cp deps/v8/out/native/d8 debian/multitouch-libv8-1/opt/multitouch-nodejs-1/bin/v8-d8
+	cp deps/v8/out/native/lineprocessor debian/multitouch-libv8-1/opt/multitouch-nodejs-1/bin/v8-lineprocessor
+	cp deps/v8/out/native/process debian/multitouch-libv8-1/opt/multitouch-nodejs-1/bin/v8-process
+	cp deps/v8/out/native/shell debian/multitouch-libv8-1/opt/multitouch-nodejs-1/bin/v8-shell
+	cp out/Release/lib.target/libnode-multitouch1.so debian/multitouch-nodejs-1/opt/multitouch-nodejs-1/lib/libnode-multitouch1.so
+	mkdir -p debian/multitouch-libv8-1/etc/ld.so.conf.d
+	echo /opt/multitouch-nodejs-1/lib/ > debian/multitouch-libv8-1/etc/ld.so.conf.d/multitouch-libv8-1.conf
+	$(MAKE) install DESTDIR=debian/multitouch-nodejs-1
+	dh_lintian
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_strip
+	dh_makeshlibs
+	dh_shlibdeps
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+%:
+	echo dh $@

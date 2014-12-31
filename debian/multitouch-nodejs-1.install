@@ -1,0 +1,2 @@
+deps/uv/include/* /opt/multitouch-nodejs-1/include/node/
+src/node*.h /opt/multitouch-nodejs-1/include/node/
