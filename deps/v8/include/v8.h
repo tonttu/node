@@ -2571,7 +2571,7 @@ class V8EXPORT Extension {  // NOLINT
             int source_length = -1);
   virtual ~Extension() { }
   virtual v8::Handle<v8::FunctionTemplate>
-      GetNativeFunction(v8::Handle<v8::String> name) {
+      GetNativeFunction(v8::Handle<v8::String> /*name*/) {
     return v8::Handle<v8::FunctionTemplate>();
   }
 
@@ -3038,7 +3038,7 @@ typedef void (*JitCodeEventHandler)(const JitCodeEvent* event);
 class V8EXPORT ExternalResourceVisitor {  // NOLINT
  public:
   virtual ~ExternalResourceVisitor() {}
-  virtual void VisitExternalString(Handle<String> string) {}
+  virtual void VisitExternalString(Handle<String> /*string*/) {}
 };
 
 
@@ -3048,8 +3048,8 @@ class V8EXPORT ExternalResourceVisitor {  // NOLINT
 class V8EXPORT PersistentHandleVisitor {  // NOLINT
  public:
   virtual ~PersistentHandleVisitor() {}
-  virtual void VisitPersistentHandle(Persistent<Value> value,
-                                     uint16_t class_id) {}
+  virtual void VisitPersistentHandle(Persistent<Value> /*value*/,
+                                     uint16_t /*class_id*/) {}
 };
 
 
@@ -3991,7 +3991,7 @@ class V8EXPORT OutputStream {  // NOLINT
    * can be stopped by returning kAbort as function result. EndOfStream
    * will not be called in case writing was aborted.
    */
-  virtual WriteResult WriteHeapStatsChunk(HeapStatsUpdate* data, int count) {
+  virtual WriteResult WriteHeapStatsChunk(HeapStatsUpdate* /*data*/, int /*count*/) {
     return kAbort;
   };
 };
@@ -4192,13 +4192,13 @@ class Internals {
     return *reinterpret_cast<T*>(addr);
   }
 
-  static inline bool CanCastToHeapObject(void* o) { return false; }
-  static inline bool CanCastToHeapObject(Context* o) { return true; }
-  static inline bool CanCastToHeapObject(String* o) { return true; }
-  static inline bool CanCastToHeapObject(Object* o) { return true; }
-  static inline bool CanCastToHeapObject(Message* o) { return true; }
-  static inline bool CanCastToHeapObject(StackTrace* o) { return true; }
-  static inline bool CanCastToHeapObject(StackFrame* o) { return true; }
+  static inline bool CanCastToHeapObject(void*) { return false; }
+  static inline bool CanCastToHeapObject(Context*) { return true; }
+  static inline bool CanCastToHeapObject(String*) { return true; }
+  static inline bool CanCastToHeapObject(Object*) { return true; }
+  static inline bool CanCastToHeapObject(Message*) { return true; }
+  static inline bool CanCastToHeapObject(StackTrace*) { return true; }
+  static inline bool CanCastToHeapObject(StackFrame*) { return true; }
 };
 
 }  // namespace internal
