@@ -127,7 +127,7 @@ def subdir_files(path, dest, action):
     action(files, subdir + '/')
 
 def files(action):
-  action(['out/Release/node'], 'bin/node')
+  action(['out/Release/nodejs'], 'bin/node')
 
   if 'true' == variables.get('node_use_dtrace'):
     action(['out/Release/node.d'], 'lib/dtrace/node.d')

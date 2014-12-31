@@ -60,6 +60,107 @@
 
   'targets': [
     {
+      'target_name': 'nodejs',
+      'type': 'executable',
+
+      'include_dirs': [
+        'deps/uv/include',
+        'src',
+        'tools/msvs/genfiles',
+        'deps/uv/src/ares',
+        '<(SHARED_INTERMEDIATE_DIR)' # for node_natives.h
+      ],
+
+      'sources': [
+        'src/node_main.cc'
+      ],
+
+      'defines': [
+        'NODE_WANT_INTERNALS=1',
+        'ARCH="<(target_arch)"',
+        'PLATFORM="<(OS)"',
+        'NODE_TAG="<(node_tag)"',
+      ],
+
+      'dependencies': [
+        'node-multitouch1'
+      ],
+
+      'conditions': [
+        [ 'node_use_openssl=="true"', {
+          'defines': [ 'HAVE_OPENSSL=1' ]
+        }, {
+          'defines': [ 'HAVE_OPENSSL=0' ]
+        }],
+        [ 'node_use_dtrace=="true"', {
+          'defines': [ 'HAVE_DTRACE=1' ],
+          'include_dirs': [ '<(SHARED_INTERMEDIATE_DIR)' ]
+        } ],
+        [ 'node_shared_cares=="false"', {
+          'dependencies': [ 'deps/cares/cares.gyp:cares' ],
+        }],
+        [ 'node_use_systemtap=="true"', {
+          'defines': [ 'HAVE_SYSTEMTAP=1', 'STAP_SDT_V1=1' ]
+        } ],
+        [ 'node_use_etw=="true"', {
+          'defines': [ 'HAVE_ETW=1' ]
+        } ],
+        [ 'node_use_perfctr=="true"', {
+          'defines': [ 'HAVE_PERFCTR=1' ]
+        } ],
+
+        [ 'OS=="win"', {
+          'sources': [
+            'src/res/node.rc',
+          ],
+          'defines': [
+            'FD_SETSIZE=1024',
+            # we need to use node's preferred "win32" rather than gyp's preferred "win"
+            'PLATFORM="win32"',
+            '_UNICODE=1',
+          ],
+          'libraries': [ '-lpsapi.lib', '-lnode.lib' ]
+        }, { # POSIX
+          'defines': [ '__POSIX__' ]
+        }],
+        [ 'OS=="mac"', {
+          'libraries': [ '-framework Carbon' ],
+          'defines!': [
+            'PLATFORM="mac"',
+          ],
+          'defines': [
+            # we need to use node's preferred "darwin" rather than gyp's preferred "mac"
+            'PLATFORM="darwin"',
+          ],
+        }],
+        [ 'OS=="freebsd"', {
+          'libraries': [
+            '-lutil',
+            '-lkvm',
+          ],
+        }],
+        [ 'OS=="solaris"', {
+          'libraries': [
+            '-lkstat',
+            '-lumem',
+          ],
+          'defines!': [
+            'PLATFORM="solaris"',
+          ],
+          'defines': [
+            # we need to use node's preferred "sunos"
+            # rather than gyp's preferred "solaris"
+            'PLATFORM="sunos"',
+          ],
+        }],
+      ],
+      'msvs_settings': {
+        'VCLinkerTool': {
+          'SubSystem': 1, # /subsystem:console
+        },
+      },
+    },
+    {
       'target_name': 'node-multitouch1',
       'type': '<(output_type)',
 
@@ -85,7 +186,6 @@
         'src/node_file.cc',
         'src/node_http_parser.cc',
         'src/node_javascript.cc',
-        'src/node_main.cc',
         'src/node_os.cc',
         'src/node_script.cc',
         'src/node_stat_watcher.cc',
@@ -144,6 +244,10 @@
       ],
 
       'conditions': [
+        [ 'output_type=="executable"', {
+          'sources': [ 'src/node_main.cc' ]
+        }],
+
         [ 'node_use_openssl=="true"', {
           'defines': [ 'HAVE_OPENSSL=1' ],
           'sources': [ 'src/node_crypto.cc' ],
@@ -163,9 +267,9 @@
               },
               'conditions': [
                 ['OS in "linux freebsd"', {
-                  'ldflags': [
-                    '-Wl,--whole-archive <(PRODUCT_DIR)/libopenssl.a -Wl,--no-whole-archive',
-                  ],
+                  #'ldflags': [
+                  #  '-Wl,--whole-archive <(PRODUCT_DIR)/libopenssl.a -Wl,--no-whole-archive',
+                  #],
                 }],
               ],
             }]]
@@ -278,6 +382,11 @@
           'libraries': [ '-lpsapi.lib' ]
         }, { # POSIX
           'defines': [ '__POSIX__' ],
+          'libraries': [
+            # make sure that for example openssl & other symbols from our private
+            # static libraries are not exported with libnode.so
+            '-Wl,--exclude-libs,ALL'
+          ]
         }],
         [ 'OS=="mac"', {
           'libraries': [ '-framework Carbon' ],

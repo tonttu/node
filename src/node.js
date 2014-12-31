@@ -140,6 +140,10 @@
           process.exit();
         });
 
+      } else if (process._library != null) {
+        global.module = Module;
+        global.require = Module.require;
+
       } else {
         // Read all of stdin - execute it.
         process.stdin.setEncoding('utf8');

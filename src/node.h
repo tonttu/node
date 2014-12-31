@@ -90,6 +90,11 @@ NODE_EXTERN extern bool no_deprecation;
 
 NODE_EXTERN int Start(int argc, char *argv[]);
 
+NODE_EXTERN void InitLibrary(int argc, char *argv[]);
+NODE_EXTERN void DeinitLibrary();
+NODE_EXTERN v8::Handle<v8::Context> LibraryContext();
+NODE_EXTERN void RunOnce();
+
 char** Init(int argc, char *argv[]);
 v8::Handle<v8::Object> SetupProcessObject(int argc, char *argv[]);
 void Load(v8::Handle<v8::Object> process);

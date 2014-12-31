@@ -106,6 +106,8 @@ Persistent<String> domain_symbol;
 // declared in node_internals.h
 Persistent<Object> process;
 
+static Persistent<Context> context_p;
+
 static Persistent<Function> process_tickFromSpinner;
 static Persistent<Function> process_tickCallback;
 
@@ -179,6 +181,8 @@ static uv_async_t dispatch_debug_messages_async;
 
 // Declared in node_internals.h
 Isolate* node_isolate = NULL;
+
+static char **lib_argv_copy = NULL;
 
 int WRITE_UTF8_FLAGS = v8::String::HINT_MANY_WRITES_EXPECTED |
                        v8::String::NO_NULL_TERMINATION;
@@ -2387,6 +2391,10 @@ Handle<Object> SetupProcessObject(int argc, char *argv[]) {
     process->Set(String::NewSymbol("traceDeprecation"), True());
   }
 
+#ifdef NODE_LIBRARY_BUILD
+  process->Set(String::NewSymbol("_library"), True(node_isolate));
+#endif
+
   size_t size = 2*PATH_MAX;
   char* execPath = new char[size];
   if (uv_exepath(execPath, &size) != 0) {
@@ -3142,5 +3150,68 @@ int Start(int argc, char *argv[]) {
   return 0;
 }
 
+void InitLibrary(int argc, char *argv[]) {
+  const char* replaceInvalid = getenv("NODE_INVALID_UTF8");
+
+  if (replaceInvalid == NULL)
+    WRITE_UTF8_FLAGS |= String::REPLACE_INVALID_UTF8;
+
+  // Hack aroung with the argv pointer. Used for process.title = "blah".
+  argv = uv_setup_args(argc, argv);
+
+  // Logic to duplicate argv as Init() modifies arguments
+  // that are passed into it.
+  lib_argv_copy = copy_argv(argc, argv);
+
+  // This needs to run *before* V8::Initialize()
+  // Use copy here as to not modify the original argv:
+  Init(argc, lib_argv_copy);
+
+  V8::Initialize();
+#if HAVE_OPENSSL
+  // V8 on Windows doesn't have a good source of entropy. Seed it from
+  // OpenSSL's pool.
+  V8::SetEntropySource(crypto::EntropySource);
+#endif
+
+  {
+    Locker locker;
+    HandleScope handle_scope;
+
+    // Create the one and only Context.
+    context_p = Context::New();
+    Context::Scope context_scope(context_p);
+
+    // Use original argv, as we're just copying values out of it.
+    Handle<Object> process_l = SetupProcessObject(argc, argv);
+    v8_typed_array::AttachBindings(context_p->Global());
+
+    // Create all the objects, load modules, do everything.
+    // so your next reading stop should be node::Load()!
+    Load(process_l);
+  }
+}
+
+void DeinitLibrary() {
+  Locker locker(node_isolate);
+  HandleScope handle_scope;
+  EmitExit(process);
+  RunAtExit();
+
+  process.Dispose();
+  context_p.Dispose();
+
+  // Clean up the copy:
+  free(lib_argv_copy);
+  lib_argv_copy = NULL;
+}
+
+v8::Handle<v8::Context> LibraryContext() {
+  return context_p;
+}
+
+void RunOnce() {
+  uv_run(uv_default_loop(), UV_RUN_NOWAIT);
+}
 
 }  // namespace node
