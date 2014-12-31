@@ -157,7 +157,7 @@
             }],
           ],
         }, {
-          'dependencies': ['../../tools/gyp/v8.gyp:v8'],
+          'dependencies': ['../../tools/gyp/v8.gyp:v8-multitouch1'],
         }],
       ],
     },

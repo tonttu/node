@@ -30,7 +30,7 @@
   'target_defaults': {
     'type': 'executable',
     'dependencies': [
-      '../tools/gyp/v8.gyp:v8',
+      '../tools/gyp/v8.gyp:v8-multitouch1',
     ],
     'include_dirs': [
       '../include',

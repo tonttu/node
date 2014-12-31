@@ -35,7 +35,7 @@
       'target_name': 'd8',
       'type': 'executable',
       'dependencies': [
-        '../tools/gyp/v8.gyp:v8',
+        '../tools/gyp/v8.gyp:v8-multitouch1',
       ],
       # Generated source files need this explicitly:
       'include_dirs+': [

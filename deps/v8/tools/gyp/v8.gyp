@@ -31,7 +31,7 @@
     ['use_system_v8==0', {
       'targets': [
         {
-          'target_name': 'v8',
+          'target_name': 'v8-multitouch1',
           'dependencies_traverse': 1,
           'conditions': [
             ['want_separate_host_toolset==1', {
@@ -884,7 +884,7 @@
           'target_name': 'v8_shell',
           'type': 'executable',
           'dependencies': [
-            'v8'
+            'v8-multitouch1'
           ],
           'sources': [
             '../../samples/shell.cc',
@@ -977,7 +977,7 @@
     }, { # use_system_v8 != 0
       'targets': [
         {
-          'target_name': 'v8',
+          'target_name': 'v8-multitouch1',
           'type': 'none',
           'conditions': [
             ['want_separate_host_toolset==1', {
@@ -988,7 +988,7 @@
           ],
           'link_settings': {
             'libraries': [
-              '-lv8',
+              '-lv8-multitouch1',
             ],
           },
         },
@@ -1003,7 +1003,7 @@
             }],
           ],
           'dependencies': [
-            'v8'
+            'v8-multitouch1'
           ],
         },
       ],

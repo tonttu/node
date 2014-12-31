@@ -60,7 +60,7 @@
 
   'targets': [
     {
-      'target_name': 'node',
+      'target_name': 'node-multitouch1',
       'type': '<(output_type)',
 
       'dependencies': [
@@ -246,7 +246,7 @@
             'deps/v8/include/v8.h',
             'deps/v8/include/v8-debug.h',
           ],
-          'dependencies': [ 'deps/v8/tools/gyp/v8.gyp:v8' ],
+          'dependencies': [ 'deps/v8/tools/gyp/v8.gyp:v8-multitouch1' ],
         }],
 
         [ 'node_shared_zlib=="false"', {
