@@ -119,7 +119,7 @@
             'PLATFORM="win32"',
             '_UNICODE=1',
           ],
-          'libraries': [ '-lpsapi.lib', '-lnode.lib' ]
+          'libraries': [ '-lpsapi.lib', '-lnode-multitouch1.lib' ]
         }, { # POSIX
           'defines': [ '__POSIX__' ]
         }],
