@@ -369,6 +369,14 @@
           'dependencies': [ 'deps/uv/uv.gyp:libuv' ],
         }],
 
+        [ 'OS=="linux"', {
+          'libraries': [
+            # make sure that for example openssl & other symbols from our private
+            # static libraries are not exported with libnode.so
+            '-Wl,--exclude-libs,ALL'
+          ]
+        }],
+
         [ 'OS=="win"', {
           'sources': [
             'src/res/node.rc',
@@ -382,11 +390,6 @@
           'libraries': [ '-lpsapi.lib' ]
         }, { # POSIX
           'defines': [ '__POSIX__' ],
-          'libraries': [
-            # make sure that for example openssl & other symbols from our private
-            # static libraries are not exported with libnode.so
-            '-Wl,--exclude-libs,ALL'
-          ]
         }],
         [ 'OS=="mac"', {
           'libraries': [ '-framework Carbon' ],
@@ -398,7 +401,7 @@
             'PLATFORM="darwin"',
           ],
         }],
-        [ 'OS=="mac" and v8_postmortem_support=="true"', {
+        [ 'OS=="mac" and v8_postmortem_support=="true" and node_shared_v8=="false"', {
           # Do not let `v8dbg_` symbols slip away
           'xcode_settings': {
             'OTHER_LDFLAGS': [

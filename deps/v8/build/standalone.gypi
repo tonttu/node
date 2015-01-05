@@ -33,7 +33,7 @@
     'component%': 'static_library',
     'visibility%': 'hidden',
     'msvs_multi_core_compile%': '1',
-    'mac_deployment_target%': '10.5',
+    'mac_deployment_target%': '10.7',
     'variables': {
       'variables': {
         'variables': {
